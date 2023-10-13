@@ -1,5 +1,5 @@
 ## Install CUDA
-To install cuda follow the official docs or install cuda from AUR if you are in ArchLinux.
+To install cuda follow the official docs or from AUR if you are in ArchLinux.
 
 
 ## List of Fixes
