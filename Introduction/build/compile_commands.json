@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/marco/Cuda/Introduction/build",
+  "command": "/opt/cuda/bin/nvcc -forward-unknown-to-host-compiler   -g -std=c++11 -arch=native -x cu -c /home/marco/Cuda/Introduction/main.cu -o CMakeFiles/main.dir/main.cu.o",
+  "file": "/home/marco/Cuda/Introduction/main.cu",
+  "output": "CMakeFiles/main.dir/main.cu.o"
+}
+]
