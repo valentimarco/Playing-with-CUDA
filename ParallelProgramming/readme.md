@@ -16,7 +16,7 @@ In the code we have 2 major difference:
 
 2. &nbsp;In the kernel, we define a new variable called "tid" and assign **blockIdx** value in it. It contains the block index in which the kernel is execute and we <span style="color:orange">MUST</span> check if exceeds the lenght of the vectors!
 The blockIdx is a multi-dimensional value, useful for problem in multi-dimensional domains, such as matrix
-
+---
 In the code for dipaly a julia set, we create the following:
 
 1. &nbsp;Define a struct for Complex number, where all methods are usable only from the device
@@ -26,7 +26,7 @@ In the code for dipaly a julia set, we create the following:
 5. &nbsp;Call the kernel with a two-dimensional grid (Needs a dim3)
 6. &nbsp;Retrive the result from the device and display the result in the host using openGL
 
-
+![juliaset](./photos/msrdc_7lMUmM5JaU.png)
 
 
 
