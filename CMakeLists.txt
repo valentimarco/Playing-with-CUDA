@@ -12,6 +12,7 @@ endif()
 add_subdirectory(common)
 add_subdirectory(Introduction)
 add_subdirectory(ParallelProgramming)
+add_subdirectory(ThreadCooperation)
 
 # add_subdirectory(lib)
 
