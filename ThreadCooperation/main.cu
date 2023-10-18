@@ -91,9 +91,88 @@ void gpuRipple(){
 }
 
 
+// Dot product
+#define imin(a,b) (a < b ? a : b)
+const int N_v = 33 * 1024;
+const int tpb = 256; //thread per blocks
+
+__global__ void dot(float *a, float *b, float *c){
+    __shared__ float cache[tpb];
+    int tid = threadIdx.x + blockIdx.x * blockDim.x; //index for vectors
+    int cacheindex = threadIdx.x;
+    float temp = 0;
+    
+    while(tid < N){
+        temp += a[tid] * b[tid];
+        tid += blockDim.x * gridDim.x;
+    }
+
+    cache[cacheindex] = temp;
+
+    __syncthreads();
+
+    //time to reduce, tpb must be a power of 2
+    int i = blockDim.x/2;
+    while(i != 0){
+        if(cacheindex < i) cache[cacheindex] += cache[cacheindex + i];
+        __syncthreads();
+        
+        i /= 2;
+    }
+
+    //after the reduction, the value in the first position is the sum of each pairwise
+    if(cacheindex == 0) c[blockIdx.x] = cache[0];
+}
+
+
+void dotProduct(){
+    const int bpg = imin(32, (N_v+tpb-1) / tpb); //blocks per grid
+    float *a, *b, *partial_c;
+    float *dev_a, *dev_b, *dev_partial_c;
+
+    a = (float*)malloc(N_v*sizeof(float));
+    b = (float*)malloc(N_v*sizeof(float));
+    
+    partial_c = (float*)malloc(bpg*sizeof(float));
+
+    cudaMalloc((void**) &dev_a, N_v*sizeof(float));
+    cudaMalloc((void**) &dev_b, N_v*sizeof(float));
+    cudaMalloc((void**) &dev_partial_c, N_v*sizeof(float));
+
+    for(int i = 0; i < N_v; i++){
+        a[i] = i;
+        b[i] = i*2;
+    }
+
+    cudaMemcpy(dev_a, a, N_v*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_b, b, N_v*sizeof(float), cudaMemcpyHostToDevice);
+
+    dot<<<bpg,tpb>>>(dev_a,dev_b,dev_partial_c);
+
+    cudaMemcpy(partial_c, dev_partial_c, bpg*sizeof(float), cudaMemcpyDeviceToHost);
+
+    float c_v = 0;
+    for(int i = 0; i < bpg; i++) 
+        c_v += partial_c[i];
+    
+    //the dot product should be the sum of squares of the integers......
+    #define sum_squares(x) (x*(x+1)*(2*x-1)/6)
+
+    std::cout << "Does GPU value " << c_v << " = " << sum_squares((float) (N_v-1)) << " ?" << std::endl;
+
+    cudaFree(dev_a);
+    cudaFree(dev_b);
+    cudaFree(dev_partial_c);
+
+    free(a);
+    free(b);
+    free(partial_c);
+}
+
 
 int main(){
     //sumVectors();
     gpuRipple();
+    //dotProduct();
     return 0;
 }
